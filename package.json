@@ -1,0 +1,21 @@
+{
+  "name": "valentius-kryptix",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "node test-gemini.mjs",
+    "start": "node chat-history.mjs",
+    "benchmark": "node benchmark.mjs",
+    "server": "node api-server.mjs"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "dependencies": {
+    "@google/genai": "^2.32.0",
+    "dotenv": "^18.0.9",
+    "express": "^5.3.0"
+  }
+}

@@ -1,0 +1,15 @@
+# API keys and environment variables
+local.env
+.env
+.env.*
+!.env.example
+
+# Dependencies
+node_modules/
+
+# Logs
+npm-debug.log*
+
+memory.json
+memory.json.tmp
+.DS_Store

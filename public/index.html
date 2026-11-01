@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#ffffff">
+  <title>Kryptic AI</title>
+  <link rel="icon" type="image/png" href="/logo.png">
+  <style>
+    :root {
+      font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: #202124;
+      background: #ffffff;
+      font-synthesis: none;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: #fff;
+    }
+
+    .app {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      height: 72px;
+      padding: 0 6%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid #eeeeef;
+      background: rgba(255,255,255,.94);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: -.4px;
+    }
+
+    .brand-mark {
+      width: 38px;
+      height: 38px;
+      object-fit: contain;
+      display: block;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .status {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      color: #777;
+      font-size: 12px;
+    }
+
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      background: #25a56a;
+      border-radius: 50%;
+    }
+
+    button { font: inherit; cursor: pointer; }
+
+    .new-chat {
+      border: 1px solid #e5e5e5;
+      background: #fff;
+      border-radius: 9px;
+      padding: 9px 13px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #333;
+      transition: background .2s, border-color .2s;
+    }
+
+    .new-chat:hover { background: #f6f6f6; border-color: #ccc; }
+
+    main {
+      width: 100%;
+      max-width: 900px;
+      flex: 1;
+      margin: 0 auto;
+      padding: 35px 24px 20px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .welcome {
+      margin: auto 0;
+      padding: 45px 0;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .welcome-icon {
+      width: 90px;
+      height: 90px;
+      margin-bottom: 30px;
+      object-fit: contain;
+      display: block;
+    }
+
+    .welcome h1 {
+      margin: 0;
+      font-size: clamp(27px, 5vw, 38px);
+      letter-spacing: -1.5px;
+      font-weight: 650;
+    }
+
+    .welcome p {
+      color: #858585;
+      font-size: 15px;
+      line-height: 1.6;
+      margin: 12px auto 28px;
+      max-width: 440px;
+    }
+
+    .suggestions {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 9px;
+    }
+
+    .suggestion {
+      padding: 10px 14px;
+      border: 1px solid #e9e9e9;
+      background: #fff;
+      color: #555;
+      border-radius: 20px;
+      font-size: 12px;
+      transition: .2s;
+    }
+
+    .suggestion:hover { background: #f7f7f7; border-color: #ccc; }
+
+    #messages {
+      display: flex;
+      flex-direction: column;
+      gap: 25px;
+      padding: 10px 0 28px;
+    }
+
+    .message {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      animation: appear .2s ease-out;
+    }
+
+    @keyframes appear {
+      from { opacity: 0; transform: translateY(5px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .avatar {
+      flex: 0 0 36px;
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      display: grid;
+      place-items: center;
+      font-size: 13px;
+      font-weight: 700;
+      overflow: hidden;
+    }
+
+    .assistant .avatar { background: #202124; color: white; padding: 5px; }
+    .assistant .avatar img { width: 100%; height: 100%; object-fit: contain; filter: invert(1); }
+    .user .avatar { background: #eeeeef; color: #444; }
+
+    .message-content {
+      min-width: 0;
+      max-width: calc(100% - 43px);
+      padding-top: 5px;
+    }
+
+    .message-name {
+      margin-bottom: 7px;
+      font-size: 12px;
+      font-weight: 650;
+      color: #777;
+    }
+
+    .message-text {
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      font-size: 14px;
+      line-height: 1.75;
+      color: #303030;
+    }
+
+    .user .message-text {
+      display: inline-block;
+      padding: 10px 14px;
+      background: #f3f3f3;
+      border-radius: 4px 13px 13px 13px;
+    }
+
+    .typing {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 9px 0;
+    }
+
+    .typing span {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #999;
+      animation: bounce .9s infinite alternate;
+    }
+
+    .typing span:nth-child(2) { animation-delay: .2s; }
+    .typing span:nth-child(3) { animation-delay: .4s; }
+
+    @keyframes bounce {
+      to { opacity: .35; transform: translateY(-4px); }
+    }
+
+    .composer-wrap {
+      position: sticky;
+      bottom: 0;
+      padding: 15px 0 5px;
+      background: linear-gradient(transparent, white 18%);
+    }
+
+    .composer {
+      display: flex;
+      align-items: flex-end;
+      gap: 10px;
+      padding: 10px 11px 10px 17px;
+      border: 1px solid #e4e4e4;
+      border-radius: 16px;
+      background: #fff;
+      box-shadow: 0 5px 25px rgba(0,0,0,.045);
+      transition: border-color .2s, box-shadow .2s;
+    }
+
+    .composer:focus-within {
+      border-color: #bdbdbd;
+      box-shadow: 0 5px 25px rgba(0,0,0,.07);
+    }
+
+    textarea {
+      flex: 1;
+      resize: none;
+      border: 0;
+      outline: 0;
+      background: transparent;
+      color: #222;
+      font: inherit;
+      font-size: 14px;
+      line-height: 1.5;
+      max-height: 150px;
+      min-height: 27px;
+      padding: 4px 0;
+    }
+
+    textarea::placeholder { color: #aaa; }
+
+    .send {
+      flex: 0 0 36px;
+      width: 36px;
+      height: 36px;
+      border: 0;
+      border-radius: 11px;
+      background: #202124;
+      color: white;
+      display: grid;
+      place-items: center;
+      font-size: 17px;
+      transition: opacity .2s, transform .2s;
+    }
+
+    .send:hover { transform: translateY(-1px); }
+    .send:disabled { opacity: .35; cursor: not-allowed; transform: none; }
+
+    .hint {
+      margin: 11px 0 0;
+      text-align: center;
+      color: #aaa;
+      font-size: 11px;
+    }
+
+    .error {
+      margin: 0 0 12px;
+      padding: 10px 13px;
+      border: 1px solid #f0d4d4;
+      border-radius: 9px;
+      color: #a33;
+      background: #fff8f8;
+      font-size: 12px;
+      display: none;
+    }
+
+    footer {
+      padding: 12px 20px 17px;
+      text-align: center;
+      color: #b0b0b0;
+      font-size: 11px;
+    }
+
+    @media (max-width: 600px) {
+      header { height: 62px; padding: 0 17px; }
+      main { padding: 20px 16px 12px; }
+      .welcome { padding: 30px 0; }
+      .welcome p { font-size: 14px; }
+      .status { display: none; }
+      #messages { gap: 21px; }
+      .composer { border-radius: 13px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div class="brand">
+        <img class="brand-mark" src="/logo.png" alt="Kryptic AI logo">
+        <span>Kryptix AI</span>
+      </div>
+      <div class="header-right">
+        <div class="status"><span class="status-dot"></span> AI online</div>
+        <button class="new-chat" id="newChat">＋ New chat</button>
+      </div>
+    </header>
+
+    <main>
+      <section class="welcome" id="welcome">
+        <img class="welcome-icon" src="/logo.png" alt="Kryptic AI logo">
+        <h1>How can I help you today?</h1>
+        <p>Your AI assistant for programming, technology, learning and problem-solving.</p>
+        <div class="suggestions">
+          <button class="suggestion">Explain a programming concept</button>
+          <button class="suggestion">Help me debug some code</button>
+          <button class="suggestion">Teach me something new</button>
+        </div>
+      </section>
+
+      <section id="messages" aria-live="polite"></section>
+
+      <div class="composer-wrap">
+        <div class="error" id="error"></div>
+        <form class="composer" id="chatForm">
+          <textarea id="messageInput" rows="1" placeholder="Message Kryptix AI..." aria-label="Message Kryptix AI"></textarea>
+          <button class="send" id="sendButton" type="submit" aria-label="Send message">↑</button>
+        </form>
+        <p class="hint">Kryptix AI can make mistakes. Verify important information.</p>
+      </div>
+    </main>
+
+    <footer>Powered by Gemini · Kryptix AI</footer>
+  </div>
+
+  <script>
+    const form = document.getElementById("chatForm");
+    const input = document.getElementById("messageInput");
+    const sendButton = document.getElementById("sendButton");
+    const messages = document.getElementById("messages");
+    const welcome = document.getElementById("welcome");
+    const errorBox = document.getElementById("error");
+    const newChatButton = document.getElementById("newChat");
+
+    let conversationId = null;
+    let isSending = false;
+
+    function addMessage(role, text) {
+      const item = document.createElement("article");
+      item.className = `message ${role}`;
+
+      const avatar = document.createElement("div");
+      avatar.className = "avatar";
+      if (role === "assistant") {
+        const img = document.createElement("img");
+        img.src = "/logo.png";
+        img.alt = "K";
+        avatar.appendChild(img);
+      } else {
+        avatar.textContent = "Y";
+      }
+
+      const content = document.createElement("div");
+      content.className = "message-content";
+
+      const name = document.createElement("div");
+      name.className = "message-name";
+      name.textContent = role === "assistant" ? "Kryptix AI" : "You";
+
+      const body = document.createElement("div");
+      body.className = "message-text";
+      body.textContent = text;
+
+      content.append(name, body);
+      item.append(avatar, content);
+      messages.appendChild(item);
+      item.scrollIntoView({ behavior: "smooth", block: "end" });
+
+      return item;
+    }
+
+    function showTyping() {
+      const item = document.createElement("article");
+      item.className = "message assistant";
+      item.id = "typingIndicator";
+      item.innerHTML = `
+        <div class="avatar"><img src="/logo.png" alt="K"></div>
+        <div class="message-content">
+          <div class="message-name">Kryptix AI</div>
+          <div class="typing"><span></span><span></span><span></span></div>
+        </div>`;
+      messages.appendChild(item);
+      item.scrollIntoView({ behavior: "smooth", block: "end" });
+    }
+
+    async function sendMessage(text) {
+      if (isSending || !text.trim()) return;
+
+      isSending = true;
+      sendButton.disabled = true;
+      errorBox.style.display = "none";
+      welcome.style.display = "none";
+      addMessage("user", text);
+      showTyping();
+
+      try {
+        const response = await fetch("/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            message: text,
+            ...(conversationId ? { conversationId } : {})
+          })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || "Something went wrong. Please try again.");
+        }
+
+        conversationId = data.conversationId;
+        document.getElementById("typingIndicator")?.remove();
+        addMessage("assistant", data.reply);
+      } catch (error) {
+        document.getElementById("typingIndicator")?.remove();
+        errorBox.textContent = error.message || "Unable to connect to Kryptix AI.";
+        errorBox.style.display = "block";
+      } finally {
+        isSending = false;
+        sendButton.disabled = false;
+        input.focus();
+      }
+    }
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const text = input.value.trim();
+      if (!text || isSending) return;
+      input.value = "";
+      input.style.height = "auto";
+      await sendMessage(text);
+    });
+
+    input.addEventListener("input", () => {
+      input.style.height = "auto";
+      input.style.height = `${Math.min(input.scrollHeight, 150)}px`;
+    });
+
+    input.addEventListener("keydown", (event) => {
+      if (event.key === "Enter" && !event.shiftKey) {
+        event.preventDefault();
+        form.requestSubmit();
+      }
+    });
+
+    newChatButton.addEventListener("click", () => {
+      if (isSending) return;
+      conversationId = null;
+      messages.replaceChildren();
+      errorBox.style.display = "none";
+      welcome.style.display = "block";
+      input.value = "";
+      input.focus();
+    });
+
+    document.querySelectorAll(".suggestion").forEach((button) => {
+      button.addEventListener("click", () => {
+        input.value = button.textContent;
+        form.requestSubmit();
+      });
+    });
+  </script>
+</body>
+</html>
